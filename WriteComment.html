@@ -1,0 +1,729 @@
+<html>
+<head>
+	<title>Prepare Comment</title>
+	<style type = "text/css">
+		body {background-image: linear-gradient(lightblue , white);}
+		p { color: rgb(89, 28, 204);}
+	</style>
+</head>
+<body>
+	<center>
+    
+	<div id = "controls">
+		
+			<p>Author :</p>
+			<input type="text" id = "authorField">
+			<p>Purpose :</p>
+			<input type="text" id = "purposeField">
+			<p>Input :</p>
+			<input type="text" id = "inputField">
+			<p>Output :</p>
+			<input type="text" id = "outputField">
+		
+	</div>
+	<br>
+	<!-- <br> -->
+    <div id="info">
+        <label style="font-size:30px; color:red;">Put ";" inside fields for new line</label>
+    </div>
+    <br>
+	<fieldset style="width:250px">
+	<legend>Settings :</legend>
+		<div id = "settings">
+				<input type = "button" id="plusButton" value="+ Add field" onclick="AddPlus();"><br><br>
+				<input type = "checkbox" id = "addSlash" checked onclick="ShowMargin();">Add Header and Footer<br><br>
+				<input type = "checkbox" id = "addSpace" onclick="ShowMargin();">Add Space for each line<br><br>
+				<label>Margin Space   : </label><label id="marginSpace" style="background-color:greenyellow; font-weight:bold; font-size:x-large;"></label>
+				<input type = "button" id="mInc" value="+" onclick="IncreaseMargin();">
+				<input type = "button" id="mDec" value="--" onclick="DecreaseMargin();">
+				<br><br>
+				<input type="radio" name = "rd" value="JS" checked onclick="CheckRadio();"> JS Comment
+				<input type="radio" name = "rd" value="VBA" onclick="CheckRadio();"> VBA Comment
+		</div>
+	</fieldset>
+	<br>
+	<br>
+	<div id = "buttons">
+		
+			<input type = "button" value = "Prepare" id="prepareButton" onClick="PrepareComments();">
+			<input type = "button" value = "Clear" id="clearButton" onClick="ClearFields();">
+		
+	</div>
+	<br>
+	<br>
+	
+	<div id="comments">
+		
+			<textarea id="commentField" rows="10" cols="70"></textarea>
+		
+	</div>
+	</center>
+<script>
+
+/////////////////////////////////////////////////////////////////////////////////
+//                                                                             //
+//      Author  : Mustafa Can Ozturk                                           //
+//                                                                             //
+//      Purpose : This program creates comments for programming languages      //
+//                                                                             //
+//      Input   : You need to write the explanatory parameters                 //
+//                                                                             //
+//      Output  : Formatted comments in selected language                      //
+//                                                                             //
+/////////////////////////////////////////////////////////////////////////////////
+
+	let MarginSpace = 6;
+	let isFirstTime = true;
+
+	initializeForm();
+	
+	function initializeForm()
+	{
+
+		document.getElementById("comments").style.visibility = "hidden";
+		//Style Comment Field
+		let comment = document.getElementById("commentField"); 
+		comment.style.backgroundColor = "black";
+		comment.style.color = "green";
+		comment.style.fontSize = "1.5em";
+		//Create Clipboard Message
+		let parentDiv = document.getElementById("comments");
+		let textNode = document.createElement("h1");
+		textNode.style.color = 'red';
+		textNode.setAttribute("id", "clipboardMsg");
+		let textMsg = document.createTextNode("");
+		textNode.appendChild(textMsg);
+		parentDiv.appendChild(textNode);
+		//Make paragraphs bigger
+		let ControlNames = document.getElementById("controls").getElementsByTagName("p");
+		for (let i=0; i < ControlNames.length; i++)
+		{
+			ControlNames[i].style.fontSize = "1.2em";
+		}
+		MakeFieldsColorful();
+		
+		ShowMargin();
+
+		//Make Prepare button bigger
+		let Btns = document.getElementById("buttons").getElementsByTagName("input");
+		
+		for (let i=0; i<Btns.length; i++)
+		{
+			Btns[i].style.width = "140px";
+			Btns[i].style.height = "50px";
+			Btns[i].style.backgroundColor = 'green';
+			Btns[i].style.fontSize = "1.5em";
+			Btns[i].style.color = "white";
+		}
+
+		AddAuxButtons();
+
+		AdjustTabIndex();
+
+
+        //TestCase();
+
+		
+	}
+
+    function TestCase()
+    {
+        let txt = document.getElementById("controls").getElementsByTagName("input");
+        let i=0;
+
+        for (i=0; i<txt.length; i++)
+        {
+            txt[i].value = (i+1).toString().repeat(8);
+        }
+        
+    }
+
+    function AdjustTabIndex()
+    {
+        var controls = document.getElementById("controls");
+        var chNodes = controls.childNodes;
+
+        for (let i=0; i<chNodes.length; i++)
+        {
+            
+            if (chNodes[i].nodeName === "INPUT")
+            {
+                chNodes[i].setAttribute("tabIndex", 0);
+            }
+            else
+            {
+                try
+                {
+                    chNodes[i].setAttribute("tabIndex", -1);
+                }
+                catch
+                {
+                    //there will be error but dont do anything
+                }
+                
+            }
+        }
+    }
+
+	function CheckRadio()
+	{
+		if (isFirstTime === false)
+		{
+			PrepareComments();
+        }
+	}
+
+	function ShowMargin()
+	{
+		let margin = document.getElementById("marginSpace");
+		let comment = document.getElementById("comments");
+
+		margin.innerHTML = MarginSpace;
+		
+		if (comment.style.visibility === "visible")
+		{
+			PrepareComments();
+		}
+	}
+
+	function IncreaseMargin()
+	{
+		MarginSpace = MarginSpace + 1;
+		ShowMargin();
+	}
+
+	function DecreaseMargin()
+	{
+		if (MarginSpace > 0)
+		{
+			MarginSpace = MarginSpace - 1;
+			ShowMargin();
+		}
+	}
+
+	function AddAuxButtons()
+	{
+		let textFields = document.getElementById("controls");
+		let inputs = textFields.getElementsByTagName("input");
+
+		for (let i=0; i<inputs.length; i++)
+		{
+			if (inputs[i].previousSibling.nodeName !== "BUTTON")
+			{
+				let UpButton = document.createElement("button");
+				UpButton.innerHTML = "^";
+				//UpButton.setAttribute("onclick", "UpButton();");
+				textFields.insertBefore(UpButton, inputs[i]);
+
+				let DownButton = document.createElement("button");
+				DownButton.innerHTML = "v";
+				//DownButton.setAttribute("onclick", "DownButton();");
+				textFields.insertBefore(DownButton, inputs[i]);
+
+				let deleteButton = document.createElement("button");
+				deleteButton.innerHTML = "Delete";
+				textFields.insertBefore(deleteButton, inputs[i].nextSibling);
+			}
+			//Set Attributes for each delete button
+			inputs[i].nextSibling.setAttribute("id", i+1);
+			inputs[i].nextSibling.setAttribute("onclick", "DeleteButton(this.id)");
+
+			//Set Attributes for each Up button
+			inputs[i].previousSibling.previousSibling.setAttribute("id", "UpID" + (i + 1));
+			inputs[i].previousSibling.previousSibling.setAttribute("onclick", "UpButton(this.id);");
+
+			//Set Attributes for each Down button
+			inputs[i].previousSibling.setAttribute("id", "DownID" + (i + 1));
+			inputs[i].previousSibling.setAttribute("onclick", "DownButton(this.id);");
+
+		}
+	}
+
+	function ExtractNumber(value)
+	{
+		let result = "";
+		let i = 0;
+
+		for (i = 0; i<value.length; i++)
+		{
+			if (isNaN(value.substr(i, 1)) === false)
+				result = result + value.substr(i,1);
+		}
+
+		return result;
+	}
+
+	function getParagraphNames()
+	{
+		let p = document.getElementById("controls").getElementsByTagName("p");
+		let pArr =[];
+
+		for (let i=0; i<p.length; i++)
+		{
+			pArr.push(p[i].innerHTML);
+		}
+
+		return pArr;
+		
+	}
+
+    function getTextValues()
+    {
+        let txt = document.getElementById("controls").getElementsByTagName("input");
+        let txtArr = [];
+
+        for (let i = 0; i<txt.length; i++)
+        {
+            txtArr.push(txt[i].value);
+        }
+
+        return txtArr;
+    }
+
+	function UpButton(buttonID)
+	{
+        let button = ExtractNumber(buttonID);
+        let pName = getParagraphNames();
+        let pLength = pName.length;
+
+        let pTemp = "";
+        let pfirst = pName[button - 1];
+        let pLast = pName[button -2];
+
+        let txtValues = getTextValues();
+        let txtLength = txtValues.length;
+        
+        let txtTemp = "";
+        let txtFirst = txtValues[button - 1];
+        let txtLast = txtValues[button - 2];
+
+        if (pLast === undefined)
+        {
+            pLast = pName[pLength - 1];
+            txtLast = txtValues[txtLength - 1];
+        }
+
+        let p = document.getElementById("controls").getElementsByTagName("p");
+        let txt = document.getElementById("controls").getElementsByTagName("input");
+
+        p[button - 1].innerHTML = pLast;
+        txt[button - 1].value = txtLast;
+
+
+        if (p[button - 2] === undefined)
+        {
+            p[p.length - 1].innerHTML = pfirst;
+            txt[txt.length - 1].value = txtFirst;
+        }
+        else
+        {
+            p[button - 2].innerHTML = pfirst;
+            txt[button - 2].value = txtFirst;
+        }
+
+        if (isFirstTime === false)
+        {
+            PrepareComments();
+        }
+	}
+
+	function DownButton(buttonID)
+	{
+        let button = ExtractNumber(buttonID);
+        let pName = getParagraphNames();
+        let pLength = pName.length;
+
+        let pTemp = "";
+        let pfirst = pName[button - 1];
+        let pLast = pName[button];
+
+        let txtValues = getTextValues();
+        let txtLength = txtValues.length;
+
+        let txtTemp = "";
+        let txtFirst = txtValues[button - 1];
+        let txtLast = txtValues[button];
+
+        if (pLast === undefined)
+        {
+            pLast = pName[0];
+            txtLast = txtValues[0];
+        }
+
+        let p = document.getElementById("controls").getElementsByTagName("p");
+        let txt = document.getElementById("controls").getElementsByTagName("input");
+
+        p[button - 1].innerHTML = pLast;
+        txt[button - 1].value = txtLast;
+        
+        if (p[button] === undefined)
+        {
+            p[0].innerHTML = pfirst;
+            txt[0].value = txtFirst;
+        }
+        else
+        {
+            p[button].innerHTML = pfirst;
+            txt[button].value = txtFirst;
+        }
+
+        if (isFirstTime === false)
+        {
+            PrepareComments();
+        }
+	}
+
+	function DeleteButton(buttonID)
+	{
+		let controls = document.getElementById("controls");
+        let deleteButton = document.getElementById(buttonID);
+
+		for (let i=0; i<5; i++)
+		{
+			
+			if (deleteButton.previousSibling.innerHTML !== "Delete")
+				controls.removeChild(deleteButton.previousSibling);
+		}
+
+		controls.removeChild(deleteButton);
+
+		//Add new Id's to delete button
+		AddAuxButtons();
+
+        //After deleting one comment field, prepare the comments again
+        if (isFirstTime === false)
+        {
+            PrepareComments();
+        }
+	}
+
+	function AddPlus()
+	{
+		let textFields = document.getElementById("controls");
+		let inputs = textFields.getElementsByTagName("input");
+		
+		if (inputs.length >= 8)
+		{
+			alert("You have reached the maximum number of text fields!");
+			return;
+		}
+		//Create new field
+		let answer = prompt("Please enter the name of the field : ");
+		if (answer.trim().length === 0)
+		{
+			alert("You need to enter a name for the field!");
+			return;
+		}
+		let newField = document.createElement("input");
+		newField.setAttribute("type", "text");
+		newField.setAttribute("id", answer.toLowerCase().toString() + "Field");
+		
+		//Create new paragraph
+		let newHeader = document.createElement("p");
+		let newHeaderText = document.createTextNode(FixHeader(answer) + " : ");
+		newHeader.setAttribute("style", "font-size:1.2em");
+		newHeader.appendChild(newHeaderText);
+		//Show paragraph and field
+		textFields.appendChild(newHeader);
+		textFields.appendChild(newField);
+
+		//make every field colorful
+		MakeFieldsColorful();
+
+		AddAuxButtons();
+
+        AdjustTabIndex();
+	}
+
+	function FixHeader(value)
+	{
+		if (value.trim().length === 0)
+			return "";
+		
+		let first = value.substr(0, 1).toUpperCase();
+		let rest = value.substr(1, value.length - 1).toLowerCase();
+
+		return first+rest;
+	}
+
+	function PrepareComments()
+	{
+		//Result comment
+		let result = "";
+		
+		//Collect the data in the fields
+		let textFields = document.getElementById("controls");
+		fields = textFields.getElementsByTagName("input");
+		//The comment which has the maximum length
+		let maxLength = DetectMaxLength(fields);
+		//If the user clicks on JS comment or VBA Comment radio buttons at the very beginning, return
+		let comment = document.getElementById("comments");
+		
+		//Check if at least one radio buton is selected
+		let rds = document.getElementById("settings").getElementsByTagName("input");
+		let isChecked = false;
+		let commentCharacter = "";
+		for (let i=0; i<rds.length; i++)
+		{
+			if (rds[i].getAttribute("type") === "radio")
+			{
+				if (rds[i].checked)
+				{
+					isChecked = true;
+					commentCharacter = rds[i].getAttribute("value"); //
+					break;
+				}
+			}
+		}
+
+		if (isChecked === false)
+		{
+			alert("You need to select at least one comment option!");
+			return;
+		}
+
+		//Determine comment character
+		if (commentCharacter === "JS") commentCharacter = "/";
+		else if (commentCharacter === "VBA") commentCharacter = "'";
+		
+		var space = document.getElementById("addSpace");
+
+        var splittedMaxLength = 0;
+
+		for (let i=0; i<fields.length; i++)
+		{
+			if (fields[i].value.trim() !== "")
+			{
+				if (commentCharacter === "/")
+				{
+                    if (fields[i].value.includes(";") === true)
+                    {
+                        var str = fields[i].value.split(";")
+                        
+                        for (let j=0; j<str.length; j++)
+                        {
+                            if (j === 0)
+                                result = result + "//" + getFieldName(fields[i]) + str[j].trim() + ' '.repeat(MarginSpace + maxLength - str[j].trim().length) + "//" + "\n";
+                            else
+                                result = result + "//" + " ".repeat(getFieldName(fields[i]).length - 2) + ":" + " " + str[j].trim() + ' '.repeat(MarginSpace + maxLength - str[j].trim().length) + "//" + "\n";
+                        }
+                    }
+                    else
+                        result = result + "//" + getFieldName(fields[i]) + fields[i].value + ' '.repeat(MarginSpace + maxLength - fields[i].value.length) + "//" + "\n";
+				}
+				else
+                    if (fields[i].value.includes(";") === true)
+                    {
+                        var str = fields[i].value.split(";")
+                        
+                        for (let j=0; j<str.length; j++)
+                        {
+                            if (j === 0)
+                                result = result + "'" + getFieldName(fields[i]) + str[j].trim() + ' '.repeat(MarginSpace + maxLength - str[j].trim().length) + "'" + "\n";
+                            else
+                            result = result + "'" + " ".repeat(getFieldName(fields[i]).length - 2) + ":" + " " + str[j].trim() + ' '.repeat(MarginSpace + maxLength - str[j].trim().length) + "'" + "\n";
+                        }
+                    }
+                    else
+                        result = result + "'" + getFieldName(fields[i]) + fields[i].value + ' '.repeat(MarginSpace + maxLength - fields[i].value.length) + "'" + "\n";
+            }
+				
+		}
+		
+        if (result === "")
+		{
+			alert("You need to fill at least one field!");
+			return;
+		}
+
+		if (space.checked === true)
+        {
+            let newResult = [];
+            let splittedResult = [];
+            newResult = result.split("\n");
+            let i=0;
+            let j=0;
+
+            for (i=0; i<newResult.length*2; i++)
+            {
+                if (i%2 === 0)
+                {
+                    if (commentCharacter === "/")
+                    {
+                        splittedResult.push("//" + " ".repeat(newResult[0].length - 4) + "//");
+                    }
+                    else
+                    {
+                        splittedResult.push("'" + " ".repeat(newResult[0].length - 2) + "'");
+                    }
+        
+                }
+                else
+                {
+                    splittedResult.push(newResult[j]);
+                    j++;
+                }
+                    
+            }
+
+            result = splittedResult.join("\n");
+        }
+			
+
+		
+
+		let slash = document.getElementById("addSlash");
+		
+		if (slash.checked == true)
+		{
+			//Add slashes to the first and the last line
+			if (commentCharacter === "/")
+			{
+                if (space.checked == true)
+                {
+                    result = '/'.repeat(result.split("\n")[1].length) + "\n" + result + '/'.repeat(result.split("\n")[1].length);
+                }
+                else
+                    result = '/'.repeat(result.split("\n")[0].length) + "\n" + result + '/'.repeat(result.split("\n")[0].length);
+			}
+			else
+                result = "'".repeat(result.split("\n")[0].length) + "\n" + result + "'".repeat(result.split("\n")[0].length);	
+		}
+		
+		//Write concatonated data to the comment field
+		document.getElementById("commentField").value = result;
+	
+		document.getElementById("comments").style.visibility = "visible";	//document.getElementById("commentField").style.visibility = "visible";
+
+		document.getElementById("commentField").focus();
+		document.getElementById("commentField").select();
+		try 
+		{
+			let successful = document.execCommand('copy');
+			let msg = successful ? 'successful' : 'unsuccessful';
+			console.log('Fallback: Copying text command was ' + msg);
+
+			if (msg === "successful")
+			{
+				msg = "Copied to clipboard successfully"
+			}
+			else if (msg === "unsuccessful")
+			{
+				msg = "Failed to copy to clipboard!"
+			}
+			document.getElementById("clipboardMsg").innerText = msg;
+		} 
+		catch (err) 
+		{
+			console.error('Fallback: Oops, unable to copy', err);
+		}
+
+		clearSelection();
+		//After using the button for the first time, make this property false
+		isFirstTime = false;
+	}
+
+	function clearSelection()
+	{
+		if (window.getSelection) {window.getSelection().removeAllRanges();}
+		else if (document.selection) {document.selection.empty();}
+	}
+
+    
+	function DetectMaxLength(inputArray)
+	{
+		let len = 0;
+        
+		for (let i=0; i<inputArray.length; i++)
+		{
+            if (inputArray[i].value.includes(";") === true)
+            {
+                let str = inputArray[i].value.split(";")
+                for (let j = 0; j<str.length; j++)
+                {
+                    if (str[j].trim().length > len)
+                    {
+                        len = str[j].trim().length;
+                    }
+                }
+            }
+            else
+            {
+                if (inputArray[i].value.trim().length > len)
+                    len = inputArray[i].value.trim().length;
+            }
+            
+		}
+
+		return len;
+	}
+
+	function getFieldName(fieldTAG)
+	{
+        var field = fieldTAG.previousSibling;
+        do
+        {   
+            field = field.previousSibling; 
+        }while(field.nodeName !== "P");
+
+		field = field.innerText;
+		let maxHeaderLength = DetectMaxHeaderLength();
+
+        field = field.replace(" :", "");
+		field = field[0].toUpperCase() + field.substr(1, field.length-1);
+		return ' '.repeat(MarginSpace) + field + ' '.repeat(maxHeaderLength - field.length) + ' : ';
+
+	}
+
+	function DetectMaxHeaderLength()
+	{
+		let p = document.getElementById("controls").getElementsByTagName("p");
+		let temp = "";
+		let len = 0;
+		for (let i=0; i<p.length; i++)
+		{
+			temp = p[i].innerText.replace(" :", "");
+			if (temp.trim().length > len)
+			{
+				len = temp.trim().length;
+			}
+		}
+		
+		return len;
+	}
+
+	function ClearFields()
+	{
+		//Make comment section invisible
+		if (document.getElementById("comments").style.visibility = "visible")
+		{
+			document.getElementById("comments").style.visibility = "hidden";
+		}
+		
+		//Clear input fields
+		let fields = document.getElementById("controls");
+		fields = fields.getElementsByTagName("input");
+		for (let i=0; i<fields.length; i++)
+		{
+			fields[i].value = "";
+		}
+
+        isFirstTime = true;
+
+	}
+
+	function MakeFieldsColorful()
+	{
+		let textFields = document.getElementById("controls");
+		let inputs = textFields.getElementsByTagName("input");
+		
+		for (let i=0; i<inputs.length; i++)
+		{
+			inputs[i].setAttribute("onFocus", "this.style.backgroundColor='lightgreen'");
+			inputs[i].setAttribute("onBlur", "this.style.backgroundColor='white'");
+		}
+	}
+
+</script>
+</body>
+</html>
