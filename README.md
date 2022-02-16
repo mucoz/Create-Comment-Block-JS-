@@ -17,34 +17,3 @@ After creating the comment block, you can change the settings to see the effects
 You can add more fields if you need.
 You can increase or decrease the margin space.
 You can add empty lines between each line.
-
-
-Result for JS (With Space option);
-
-/////////////////////////////////////////////////////////////////////////////////
-//                                                                             //
-//      Author  : Mustafa Can Ozturk                                           //
-//                                                                             //
-//      Purpose : This program creates comments for programming languages      //
-//                                                                             //
-//      Input   : You need to write the explanatory parameters                 //
-//                                                                             //
-//      Output  : Formatted comments in selected language                      //
-//                                                                             //
-/////////////////////////////////////////////////////////////////////////////////
-
-
-Result for VB (Without Space option - More than one value in the fields - With another field(Additional));
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'      Author     : Mustafa Can Ozturk                                           '
-'      Purpose    : This program creates comments for programming languages      '
-'      Input      : Input 1                                                      '
-'                 : Input 2                                                      '
-'                 : Input 3                                                      '
-'      Output     : Output 1                                                     '
-'                 : Output 2                                                     '
-'                 : Output 3                                                     '
-'      Additional : Sample Additional Field                                      '
-'                 : You can add any field                                        '
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
