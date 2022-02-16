@@ -1,4 +1,4 @@
-# Create-Comment-Block-JS-
+# Create-Comment-Block-JS- (Javascript Embedded)
 
 You can create structed comment blocks for most of the programming languages.
 
