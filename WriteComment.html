@@ -4,6 +4,20 @@
 	<style type = "text/css">
 		body {background-image: linear-gradient(lightblue , white);}
 		p { color: rgb(89, 28, 204);}
+		fieldset {
+			width: 200px;
+			text-align: left;
+			margin: auto;
+		}
+		#settings input[type="radio"] {
+			vertical-align: middle;
+			margin: 0px;
+			margin-right: 5px;
+		}
+		/* Align the labels next to the radio buttons */
+		/* #settings label { */
+			/* vertical-align: middle;
+		} */
 	</style>
 </head>
 <body>
@@ -27,7 +41,7 @@
         <label style="font-size:30px; color:red;">Put ";" inside fields for new line</label>
     </div>
     <br>
-	<fieldset style="width:250px">
+	<fieldset>
 	<legend>Settings :</legend>
 		<div id = "settings">
 				<input type = "button" id="plusButton" value="+ Add field" onclick="AddPlus();"><br><br>
@@ -37,8 +51,11 @@
 				<input type = "button" id="mInc" value="+" onclick="IncreaseMargin();">
 				<input type = "button" id="mDec" value="--" onclick="DecreaseMargin();">
 				<br><br>
-				<input type="radio" name = "rd" value="JS" checked onclick="CheckRadio();"> JS Comment
+				<input type="radio" name = "rd" value="JS" checked onclick="CheckRadio();"> JS/C/Java Comment
+				<br>
 				<input type="radio" name = "rd" value="VBA" onclick="CheckRadio();"> VBA Comment
+				<br>
+				<input type="radio" name = "rd" value="Python" onclick="CheckRadio();"> Python Comment
 		</div>
 	</fieldset>
 	<br>
@@ -485,7 +502,7 @@
 		//Determine comment character
 		if (commentCharacter === "JS") commentCharacter = "/";
 		else if (commentCharacter === "VBA") commentCharacter = "'";
-		
+		else if (commentCharacter === "Python") commentCharacter = "#";
 		var space = document.getElementById("addSpace");
 
         var splittedMaxLength = 0;
@@ -519,13 +536,13 @@
                         for (let j=0; j<str.length; j++)
                         {
                             if (j === 0)
-                                result = result + "'" + getFieldName(fields[i]) + str[j].trim() + ' '.repeat(MarginSpace + maxLength - str[j].trim().length) + "'" + "\n";
+                                result = result + commentCharacter + getFieldName(fields[i]) + str[j].trim() + ' '.repeat(MarginSpace + maxLength - str[j].trim().length) + commentCharacter + "\n";
                             else
-                            result = result + "'" + " ".repeat(getFieldName(fields[i]).length - 2) + ":" + " " + str[j].trim() + ' '.repeat(MarginSpace + maxLength - str[j].trim().length) + "'" + "\n";
+                            result = result + commentCharacter + " ".repeat(getFieldName(fields[i]).length - 2) + ":" + " " + str[j].trim() + ' '.repeat(MarginSpace + maxLength - str[j].trim().length) + commentCharacter + "\n";
                         }
                     }
                     else
-                        result = result + "'" + getFieldName(fields[i]) + fields[i].value + ' '.repeat(MarginSpace + maxLength - fields[i].value.length) + "'" + "\n";
+                        result = result + commentCharacter + getFieldName(fields[i]) + fields[i].value + ' '.repeat(MarginSpace + maxLength - fields[i].value.length) + commentCharacter + "\n";
             }
 				
 		}
@@ -554,7 +571,7 @@
                     }
                     else
                     {
-                        splittedResult.push("'" + " ".repeat(newResult[0].length - 2) + "'");
+                        splittedResult.push(commentCharacter + " ".repeat(newResult[0].length - 2) + commentCharacter);
                     }
         
                 }
@@ -587,7 +604,7 @@
                     result = '/'.repeat(result.split("\n")[0].length) + "\n" + result + '/'.repeat(result.split("\n")[0].length);
 			}
 			else
-                result = "'".repeat(result.split("\n")[0].length) + "\n" + result + "'".repeat(result.split("\n")[0].length);	
+                result = commentCharacter.repeat(result.split("\n")[0].length) + "\n" + result + commentCharacter.repeat(result.split("\n")[0].length);	
 		}
 		
 		//Write concatonated data to the comment field
